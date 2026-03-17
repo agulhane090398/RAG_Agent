@@ -6,7 +6,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 client = OpenAI()
-EMBED_MODEL = "text-embedding-3-large"
+# EMBED_MODEL = "text-embedding-3-large"
+EMBED_MODEL = "text-embedding-3-small"
 EMBED_DIM = 3072
 
 splitter = SentenceSplitter(chunk_size=1000, chunk_overlap=200)

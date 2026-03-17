@@ -8,6 +8,8 @@ from dotenv import load_dotenv
 import os
 import requests
 
+from data_loader import embed_texts
+
 load_dotenv()
 
 st.set_page_config(page_title="RAG Ingest PDF", page_icon="📄", layout="centered")
@@ -17,6 +19,9 @@ st.set_page_config(page_title="RAG Ingest PDF", page_icon="📄", layout="center
 def get_inngest_client() -> inngest.Inngest:
     return inngest.Inngest(app_id="rag_app", is_production=False)
 
+@st.cache_data
+def embed_cached(text):
+    return embed_texts([text])
 
 def save_uploaded_pdf(file) -> Path:
     uploads_dir = Path("uploads")
@@ -99,6 +104,7 @@ def wait_for_run_output(event_id: str, timeout_s: float = 120.0, poll_interval_s
             if status in ("Failed", "Cancelled"):
                 raise RuntimeError(f"Function run {status}")
         if time.time() - start > timeout_s:
+            st.error("OpenAI quota exceeded. Please try later or check billing.")
             raise TimeoutError(f"Timed out waiting for run output (last status: {last_status})")
         time.sleep(poll_interval_s)
 

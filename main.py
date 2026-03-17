@@ -61,7 +61,13 @@ async def rag_ingest_pdf(ctx: inngest.Context):
 )
 async def rag_query_pdf_ai(ctx: inngest.Context):
     def _search(question: str, top_k: int = 5) -> RAGSearchResult:
-        query_vec = embed_texts([question])[0]
+        try:
+            query_vec = embed_texts([question])[0]
+        except Exception as e:
+            if "insufficient_quota" in str(e):
+                raise Exception("⚠️ OpenAI quota exceeded. Please check billing.")
+            else:
+                raise
         store = QdrantStorage()
         found = store.search(query_vec, top_k)
         return RAGSearchResult(contexts=found["contexts"], sources=found["sources"])
